@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StoreListing;
 use App\Http\Requests\StoreListingRequest;
 use App\Services\StoreListingService;
+use App\Services\ExploreService;
 
 class StoreListingController extends Controller
 {

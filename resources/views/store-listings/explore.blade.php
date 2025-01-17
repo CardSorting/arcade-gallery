@@ -7,6 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <pre>{{ print_r($listings->toArray(), true) }}</pre>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach ($listings as $listing)
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
