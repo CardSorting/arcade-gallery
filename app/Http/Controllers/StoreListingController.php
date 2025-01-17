@@ -148,4 +148,14 @@ public function store(StoreListingRequest $request)
                 'message' => 'Store listing published successfully!'
             ]);
     }
+
+    public function explore()
+    {
+        $listings = StoreListing::with(['game', 'game.user'])
+            ->where('status', 'published')
+            ->latest()
+            ->paginate(12);
+
+        return view('store-listings.explore', compact('listings'));
+    }
 }
