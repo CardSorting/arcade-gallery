@@ -101,16 +101,12 @@ public function store(StoreListingRequest $request)
     public function edit($id)
     {
         $storeListing = $this->storeListingService->getListingWithDetails($id);
-        $this->authorize('update', $storeListing);
-
         return view('store-listings.edit', compact('storeListing'));
     }
 
     public function update(StoreListingRequest $request, $id)
     {
         $storeListing = $this->storeListingService->getListingWithDetails($id);
-        $this->authorize('update', $storeListing);
-
         $validated = $request->validated();
 
         $result = $this->storeListingService->updateListing($id, [
@@ -142,8 +138,6 @@ public function store(StoreListingRequest $request)
     public function publish($id)
     {
         $storeListing = $this->storeListingService->getListingWithDetails($id);
-        $this->authorize('update', $storeListing);
-
         $result = $this->storeListingService->publishListing($id);
 
         if (!$result['success']) {

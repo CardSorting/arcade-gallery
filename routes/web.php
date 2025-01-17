@@ -23,17 +23,15 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('git-repositories', GitRepositoryController::class);
     
-    // Store listing routes
-    Route::resource('store-listings', StoreListingController::class)->except(['destroy'])
-        ->parameters(['store-listings' => 'id']);
-    Route::get('/store-listings/{id}/publish', [StoreListingController::class, 'publish'])
-        ->name('store-listings.publish');
-        
     Route::get('/games/{game}/play/{path?}', [GameController::class, 'play'])->name('games.play');
 });
 
 // Public routes
 Route::get('/explore', [StoreListingController::class, 'explore'])->name('store-listings.explore');
 Route::get('/store-listings/{id}/share', [StoreListingController::class, 'share'])->name('store-listings.share');
+Route::resource('store-listings', StoreListingController::class)->except(['destroy'])
+    ->parameters(['store-listings' => 'id']);
+Route::get('/store-listings/{id}/publish', [StoreListingController::class, 'publish'])
+    ->name('store-listings.publish');
 
 require __DIR__.'/auth.php';
