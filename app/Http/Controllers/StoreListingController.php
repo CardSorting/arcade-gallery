@@ -23,7 +23,12 @@ class StoreListingController extends Controller
 
     public function create()
     {
-        return view('store-listings.create');
+        // Get games that don't already have a store listing
+        $games = \App\Models\Game::whereDoesntHave('storeListing')
+            ->where('status', 'approved')
+            ->get();
+            
+        return view('store-listings.create', compact('games'));
     }
 
     public function store(StoreListingRequest $request)

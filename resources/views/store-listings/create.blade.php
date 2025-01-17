@@ -10,18 +10,29 @@
                 <form action="{{ route('store-listings.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
+                    <!-- Game Selection -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold mb-4">Select Game</h2>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <x-input-label for="game_id" :value="__('Game')" />
+                                <select id="game_id" name="game_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                    <option value="">Select a game</option>
+                                    @foreach($games as $game)
+                                        <option value="{{ $game->id }}">{{ $game->title }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('game_id')" class="mt-2" />
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- App Information -->
                     <div class="mb-8">
-                        <h2 class="text-xl font-semibold mb-4">App Information</h2>
+                        <h2 class="text-xl font-semibold mb-4">Listing Details</h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Name -->
-                            <div>
-                                <x-input-label for="store_title" :value="__('App Name')" />
-                                <x-text-input id="store_title" name="store_title" type="text" class="mt-1 block w-full" required />
-                                <x-input-error :messages="$errors->get('store_title')" class="mt-2" />
-                            </div>
-
                             <!-- Version -->
                             <div>
                                 <x-input-label for="store_version" :value="__('Version')" />
