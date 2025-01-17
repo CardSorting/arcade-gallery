@@ -26,4 +26,9 @@ class Game extends Model
     {
         return $this->belongsTo(GitRepository::class);
     }
+
+    public function getGitRepositoryUrlAttribute()
+    {
+        return $this->gitRepository->url;
+    }
 }

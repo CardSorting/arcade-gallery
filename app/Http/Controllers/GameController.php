@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use App\Jobs\ProcessGameSubmission;
 
 class GameController extends Controller
 {
@@ -45,12 +46,14 @@ class GameController extends Controller
         $game->description = $request->description;
         $game->user_id = auth()->id();
         $game->git_repository_id = $request->git_repository_id;
-        $game->url = asset('storage/repositories/' . $game->git_repository_id);
+        $game->status = 'pending';
         $game->save();
 
-        $this->cloneRepository($game);
+        // Dispatch job to handle submission processing
+        ProcessGameSubmission::dispatch($game);
 
-        return redirect()->route('games.index');
+        return redirect()->route('games.index')
+            ->with('status', 'Game submission is being processed');
     }
 
     public function show(Game $game)
@@ -100,73 +103,5 @@ class GameController extends Controller
         $this->authorize('delete', $game);
         $game->delete();
         return redirect()->route('games.index');
-    }
-
-    private function cloneRepository(Game $game)
-    {
-        $repository = $game->gitRepository;
-        $clonePath = storage_path('app/public/repositories/' . $game->git_repository_id);
-
-        if (!Storage::exists('public/repositories/' . $game->git_repository_id)) {
-            Storage::makeDirectory('public/repositories/' . $game->git_repository_id);
-        }
-
-        // Delete existing directory if it exists
-        if (file_exists($clonePath)) {
-            $process = new Process(['rm', '-rf', $clonePath]);
-            $process->run();
-            
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-        }
-
-        // Create parent directory if it doesn't exist
-        if (!file_exists(dirname($clonePath))) {
-            mkdir(dirname($clonePath), 0755, true);
-        }
-
-        $process = new Process(['git', 'clone', $repository->url, $clonePath]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        // Try to find index.html in common locations
-        $indexPaths = [
-            'index.html',
-            'public/index.html',
-            'dist/index.html',
-            'build/index.html'
-        ];
-        
-        foreach ($indexPaths as $path) {
-            if (file_exists($clonePath . '/' . $path)) {
-                // Create a redirect HTML file
-                $redirectContent = <<<HTML
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="refresh" content="0; url={$path}">
-</head>
-<body>
-    <script>
-        window.location.href = "{$path}";
-    </script>
-</body>
-</html>
-HTML;
-                file_put_contents($clonePath . '/redirect.html', $redirectContent);
-                
-                $game->url = asset('storage/repositories/' . $game->git_repository_id . '/redirect.html');
-                $game->saveQuietly();
-                return;
-            }
-        }
-        
-        // If no index.html found, use a default URL
-        $game->url = asset('storage/repositories/' . $game->git_repository_id);
-        $game->saveQuietly();
     }
 }
