@@ -118,4 +118,19 @@ class StoreListingService
 
         return $data;
     }
+
+    public function getListingWithDetails($id)
+    {
+        return $this->storeListingRepository->getWithDetails($id);
+    }
+
+    public function getAvailableGames()
+    {
+        return $this->storeListingRepository->getAvailableGames();
+    }
+
+    public function getPaginatedListings(int $perPage)
+    {
+        return $this->storeListingRepository->paginate($perPage);
+    }
 }

@@ -34,5 +34,6 @@ Route::middleware('auth')->group(function () {
 
 // Public routes
 Route::get('/explore', [StoreListingController::class, 'explore'])->name('store-listings.explore');
+Route::get('/store-listings/{id}/share', [StoreListingController::class, 'share'])->name('store-listings.share');
 
 require __DIR__.'/auth.php';

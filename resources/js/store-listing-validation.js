@@ -112,3 +112,32 @@ document.addEventListener('DOMContentLoaded', function() {
         errorContainer.classList.add('hidden');
     }
 });
+
+// Share functionality
+function shareListing(listingId) {
+    fetch(`/store-listings/${listingId}/share`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.url) {
+            navigator.clipboard.writeText(data.url)
+                .then(() => {
+                    alert('Share link copied to clipboard!');
+                })
+                .catch(() => {
+                    alert('Failed to copy link to clipboard');
+                });
+        } else {
+            alert('Failed to generate share link');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to generate share link');
+    });
+}

@@ -11,4 +11,5 @@ interface StoreListingRepositoryInterface
     public function publish(StoreListing $storeListing): StoreListing;
     public function find(int $id): ?StoreListing;
     public function delete(StoreListing $storeListing): bool;
+    public function paginate(int $perPage);
 }

@@ -78,4 +78,27 @@ class StoreListingRepository implements StoreListingRepositoryInterface
             throw $e;
         }
     }
+
+    public function getWithDetails($id): ?StoreListing
+    {
+        return StoreListing::with('game')
+            ->where('id', $id)
+            ->first();
+    }
+
+    public function getAvailableGames()
+    {
+        return StoreListing::whereNull('game_id')
+            ->orWhereDoesntHave('storeListings', function($query) {
+                $query->whereNotNull('published_at');
+            })
+            ->get();
+    }
+
+    public function paginate(int $perPage)
+    {
+        return StoreListing::with('game')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
 }

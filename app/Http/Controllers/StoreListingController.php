@@ -22,8 +22,21 @@ class StoreListingController extends Controller
 
     public function show($id)
     {
+        if ($id === 'explore') {
+            return $this->explore();
+        }
+
         $storeListing = $this->storeListingService->getListingWithDetails($id);
         return view('store-listings.show', compact('storeListing'));
+    }
+
+    public function share($id)
+    {
+        $storeListing = $this->storeListingService->getListingWithDetails($id);
+        
+        return response()->json([
+            'url' => route('store-listings.show', $storeListing)
+        ]);
     }
 
     public function create()
