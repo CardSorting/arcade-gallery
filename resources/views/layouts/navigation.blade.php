@@ -24,9 +24,6 @@
                     <x-nav-link :href="route('store-listings.index')" :active="request()->routeIs('store-listings.index')">
                         {{ __('My Listings') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('store-listings.explore')" :active="request()->routeIs('store-listings.explore')">
-                        {{ __('Explore') }}
-                    </x-nav-link>
                 </div>
             </div>
 
