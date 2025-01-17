@@ -24,6 +24,8 @@ class StoreListingService
             // Create new store listing
             $storeListing = StoreListing::create([
                 'game_id' => $data['game_id'],
+                'version' => $data['version'],
+                'release_date' => $data['release_date'],
                 'name' => $data['name'],
                 'description' => $data['description'],
                 'category' => $data['category'],

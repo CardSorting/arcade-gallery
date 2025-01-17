@@ -15,6 +15,8 @@ class StoreListingRequest extends FormRequest
     {
         return [
             'game_id' => ['required', 'exists:games,id'],
+            'version' => ['required', 'string', 'max:20'],
+            'release_date' => ['required', 'date', 'after_or_equal:today'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'min:100', 'max:2000'],
             'icon' => ['required', 'image', 'mimes:jpeg,png', 'max:2048', 'dimensions:ratio=1/1'],
@@ -29,6 +31,12 @@ class StoreListingRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'version.required' => 'Version number is required',
+            'version.string' => 'Version must be a string',
+            'version.max' => 'Version cannot exceed 20 characters',
+            'release_date.required' => 'Release date is required',
+            'release_date.date' => 'Release date must be a valid date',
+            'release_date.after_or_equal' => 'Release date cannot be in the past',
             'game_id.required' => 'Game ID is required',
             'game_id.exists' => 'Invalid game selected',
             'name.required' => 'App name is required',

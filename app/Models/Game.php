@@ -48,6 +48,11 @@ class Game extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function storeListing()
+    {
+        return $this->hasOne(StoreListing::class);
+    }
+
     public function gitRepository()
     {
         return $this->belongsTo(GitRepository::class);
