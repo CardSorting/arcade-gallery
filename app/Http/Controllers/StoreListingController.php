@@ -9,30 +9,25 @@ use App\Services\StoreListingService;
 class StoreListingController extends Controller
 {
     public function __construct(
-        private StoreListingService $storeListingService
+        private StoreListingService $storeListingService,
+        private ExploreService $exploreService
     ) {}
 
     public function index()
     {
-        $listings = StoreListing::with(['game', 'game.user'])
-            ->latest()
-            ->paginate(12);
-
+        $listings = $this->storeListingService->getPaginatedListings(12);
         return view('store-listings.index', compact('listings'));
     }
 
-    public function show(StoreListing $storeListing)
+    public function show($id)
     {
+        $storeListing = $this->storeListingService->getListingWithDetails($id);
         return view('store-listings.show', compact('storeListing'));
     }
 
     public function create()
     {
-        // Get games that don't already have a store listing
-        $games = \App\Models\Game::whereDoesntHave('storeListing')
-            ->whereIn('status', ['approved', 'pending'])
-            ->get();
-
+        $games = $this->storeListingService->getAvailableGames();
         return view('store-listings.create', compact('games'));
     }
 
@@ -89,20 +84,22 @@ public function store(StoreListingRequest $request)
         ]);
     }
 
-    public function edit(StoreListing $storeListing)
+    public function edit($id)
     {
+        $storeListing = $this->storeListingService->getListingWithDetails($id);
         $this->authorize('update', $storeListing);
 
         return view('store-listings.edit', compact('storeListing'));
     }
 
-    public function update(StoreListingRequest $request, StoreListing $storeListing)
+    public function update(StoreListingRequest $request, $id)
     {
+        $storeListing = $this->storeListingService->getListingWithDetails($id);
         $this->authorize('update', $storeListing);
 
         $validated = $request->validated();
 
-        $result = $this->storeListingService->updateListing($storeListing, [
+        $result = $this->storeListingService->updateListing($id, [
             'name' => $validated['name'],
             'description' => $validated['description'],
             'icon' => $validated['icon'],
@@ -128,11 +125,12 @@ public function store(StoreListingRequest $request)
             ]);
     }
 
-    public function publish(StoreListing $storeListing)
+    public function publish($id)
     {
+        $storeListing = $this->storeListingService->getListingWithDetails($id);
         $this->authorize('update', $storeListing);
 
-        $result = $this->storeListingService->publishListing($storeListing);
+        $result = $this->storeListingService->publishListing($id);
 
         if (!$result['success']) {
             return redirect()->back()
@@ -149,17 +147,10 @@ public function store(StoreListingRequest $request)
             ]);
     }
 
+
     public function explore()
     {
-        $listings = StoreListing::with(['game' => function($query) {
-                $query->with('user');
-            }])
-            ->select('store_listings.*', 'games.version')
-            ->join('games', 'games.id', '=', 'store_listings.game_id')
-            ->whereNotNull('published_at')
-            ->latest('published_at')
-            ->paginate(12);
-
+        $listings = $this->exploreService->getPublishedListings();
         return view('store-listings.explore', compact('listings'));
     }
 }

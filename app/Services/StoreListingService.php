@@ -2,27 +2,25 @@
 
 namespace App\Services;
 
-use App\Models\StoreListing;
+use App\Repositories\StoreListingRepositoryInterface;
 use App\Jobs\ProcessGameSubmission;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class StoreListingService
 {
     public function __construct(
-        private FileStorageService $fileStorageService
+        private FileStorageService $fileStorageService,
+        private StoreListingRepositoryInterface $storeListingRepository
     ) {}
 
     public function createListing(array $data): array
     {
         try {
-            DB::beginTransaction();
-            
             // Handle file uploads
             $data = $this->handleFileUploads($data);
             
-            // Create new store listing
-            $storeListing = StoreListing::create([
+            // Create new store listing through repository
+            $storeListing = $this->storeListingRepository->create([
                 'game_id' => $data['game_id'],
                 'version' => $data['version'],
                 'release_date' => $data['release_date'],
@@ -38,8 +36,6 @@ class StoreListingService
             // Dispatch processing job with the associated game
             ProcessGameSubmission::dispatch($storeListing->game);
             
-            DB::commit();
-            
             return [
                 'success' => true,
                 'storeListing' => $storeListing,
@@ -47,7 +43,6 @@ class StoreListingService
             ];
             
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error('Store listing creation failed: ' . $e->getMessage());
             
             return [
@@ -60,13 +55,11 @@ class StoreListingService
     public function updateListing(StoreListing $storeListing, array $data): array
     {
         try {
-            DB::beginTransaction();
-            
             // Handle file uploads
             $data = $this->handleFileUploads($data);
             
-            // Update store listing
-            $storeListing->update([
+            // Update store listing through repository
+            $updatedListing = $this->storeListingRepository->update($storeListing, [
                 'name' => $data['name'],
                 'description' => $data['description'],
                 'category' => $data['category'],
@@ -76,16 +69,13 @@ class StoreListingService
                 'screenshots' => $data['screenshots'] ?? $storeListing->screenshots
             ]);
             
-            DB::commit();
-            
             return [
                 'success' => true,
-                'storeListing' => $storeListing,
+                'storeListing' => $updatedListing,
                 'message' => 'Store listing updated successfully'
             ];
             
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error('Store listing update failed: ' . $e->getMessage());
             
             return [
@@ -98,13 +88,11 @@ class StoreListingService
     public function publishListing(StoreListing $storeListing): array
     {
         try {
-            $storeListing->update([
-                'published_at' => now(),
-                'is_featured' => false // Reset featured status on publish
-            ]);
+            $publishedListing = $this->storeListingRepository->publish($storeListing);
             
             return [
                 'success' => true,
+                'storeListing' => $publishedListing,
                 'message' => 'Store listing published successfully'
             ];
             
