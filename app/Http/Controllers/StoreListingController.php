@@ -46,34 +46,21 @@ class StoreListingController extends Controller
     {
         $this->authorize('update', $game);
         
-        try {
-            DB::beginTransaction();
-            
-            // Create store listing and update game status
-            $this->storeListingService->createListing($game, $request->validated());
-            $game->update(['status' => 'pending']);
-
-            // Dispatch job to handle submission processing
-            ProcessGameSubmission::dispatch($game);
-
-            DB::commit();
-
-            return redirect()->route('games.show', $game)
-                ->with('status', [
-                    'type' => 'success',
-                    'message' => 'Store listing updated successfully! Processing will begin shortly.'
-                ]);
-                
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Store listing update failed: ' . $e->getMessage());
-            
+        $result = $this->storeListingService->createListing($game, $request->validated());
+        
+        if (!$result['success']) {
             return redirect()->back()
                 ->withInput()
                 ->with('status', [
                     'type' => 'error',
-                    'message' => 'Failed to update store listing. Please try again.'
+                    'message' => $result['message']
                 ]);
         }
+
+        return redirect()->route('games.show', $game)
+            ->with('status', [
+                'type' => 'success',
+                'message' => 'Store listing updated successfully! Processing will begin shortly.'
+            ]);
     }
 }
