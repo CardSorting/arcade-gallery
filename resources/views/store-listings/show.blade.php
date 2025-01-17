@@ -78,11 +78,6 @@
                                     Play Now
                                 </a>
                                 
-                                <button onclick="copyToClipboard(window.location.href)" 
-                                        class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                                    Share Listing
-                                </button>
-                                
                                 @can('update', $storeListing)
                                 <a href="{{ route('store-listings.edit', $storeListing) }}" 
                                    class="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors block text-center">
@@ -97,14 +92,4 @@
         </div>
     </div>
 </div>
-@push('scripts')
-<script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Link copied to clipboard!');
-        }, function(err) {
-            alert('Failed to copy link. Please try again.');
-        });
-    }
-</script>
-@endpush
+@endsection
