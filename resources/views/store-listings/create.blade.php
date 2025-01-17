@@ -41,6 +41,13 @@
                                 <x-input-error :messages="$errors->get('version')" class="mt-2" />
                             </div>
 
+                            <!-- App Name -->
+                            <div>
+                                <x-input-label for="name" :value="__('App Name')" />
+                                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" required />
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                            </div>
+
                             <!-- Release Date -->
                             <div>
                                 <x-input-label for="release_date" :value="__('Release Date')" />

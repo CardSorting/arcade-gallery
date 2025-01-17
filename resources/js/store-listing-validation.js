@@ -26,10 +26,77 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         const description = document.getElementById('description');
         const minLength = 100;
+        const screenshots = document.getElementById('screenshots');
+        const icon = document.getElementById('icon');
+        let hasErrors = false;
         
+        // Clear previous errors
+        clearError();
+
+        // Validate description length
         if (description.value.length < minLength) {
-            e.preventDefault();
             showError(`Description must be at least ${minLength} characters`);
+            hasErrors = true;
+        }
+        
+        // Validate icon
+        if (icon.files.length > 0) {
+            const allowedTypes = ['image/jpeg', 'image/png'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            const file = icon.files[0];
+            
+            // Check file type
+            if (!allowedTypes.includes(file.type)) {
+                showError('App icon must be JPEG or PNG');
+                hasErrors = true;
+            }
+            
+            // Check file size
+            if (file.size > maxSize) {
+                showError('App icon must be smaller than 2MB');
+                hasErrors = true;
+            }
+        }
+
+        // Validate screenshots if any are selected
+        if (screenshots.files.length > 0) {
+            const allowedTypes = ['image/jpeg', 'image/png'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            const maxCount = 5;
+            
+            // Check number of screenshots
+            if (screenshots.files.length > maxCount) {
+                showError(`You can upload a maximum of ${maxCount} screenshots`);
+                hasErrors = true;
+            }
+            
+            for (let i = 0; i < screenshots.files.length; i++) {
+                const file = screenshots.files[i];
+                
+                // Check file type
+                if (!allowedTypes.includes(file.type)) {
+                    showError('Screenshots must be JPEG or PNG files');
+                    hasErrors = true;
+                    break;
+                }
+                
+                // Check file size
+                if (file.size > maxSize) {
+                    showError('Each screenshot must be smaller than 2MB');
+                    hasErrors = true;
+                    break;
+                }
+            }
+        }
+
+        // Prevent form submission if there are errors
+        if (hasErrors) {
+            e.preventDefault();
+        } else {
+            // Show loading state
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Submitting...';
         }
     });
 

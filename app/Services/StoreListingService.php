@@ -35,8 +35,8 @@ class StoreListingService
                 'screenshots' => $data['screenshots'] ?? null
             ]);
             
-            // Dispatch processing job
-            ProcessGameSubmission::dispatch($storeListing);
+            // Dispatch processing job with the associated game
+            ProcessGameSubmission::dispatch($storeListing->game);
             
             DB::commit();
             

@@ -21,6 +21,11 @@ class StoreListingController extends Controller
         return view('store-listings.index', compact('listings'));
     }
 
+    public function show(StoreListing $storeListing)
+    {
+        return view('store-listings.show', compact('storeListing'));
+    }
+
     public function create()
     {
         // Get games that don't already have a store listing
