@@ -60,7 +60,20 @@ class ProcessGameSubmission implements ShouldQueue
             }
         }
 
-        // Additional validation logic can be added here
-        // For example: checking file sizes, validating HTML structure, etc.
+        // Validate allowed asset types
+        $allowedExtensions = ['wav', 'mp3', 'jpeg', 'jpg', 'png', 'webp'];
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path)
+        );
+        
+        foreach ($files as $file) {
+            if ($file->isFile()) {
+                $extension = strtolower($file->getExtension());
+                if (!in_array($extension, $allowedExtensions) && 
+                    !in_array($file->getFilename(), $requiredFiles)) {
+                    throw new \Exception("Disallowed file type: .$extension");
+                }
+            }
+        }
     }
 }
