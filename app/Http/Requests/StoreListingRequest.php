@@ -8,26 +8,29 @@ class StoreListingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('game'));
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|min:100|max:2000',
-            'icon' => 'required|image|mimes:jpeg,png|max:2048|dimensions:ratio=1/1',
-            'screenshots' => 'nullable|array|max:5',
-            'screenshots.*' => 'image|mimes:jpeg,png|max:2048',
-            'category' => 'required|string|in:action,adventure,puzzle,strategy,other',
-            'price' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
-            'distribution' => 'required|string|in:public,private'
+            'game_id' => ['required', 'exists:games,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'min:100', 'max:2000'],
+            'icon' => ['required', 'image', 'mimes:jpeg,png', 'max:2048', 'dimensions:ratio=1/1'],
+            'screenshots' => ['nullable', 'array', 'max:5'],
+            'screenshots.*' => ['image', 'mimes:jpeg,png', 'max:2048'],
+            'category' => ['required', 'string', 'in:action,adventure,puzzle,strategy,other'],
+            'price' => ['required', 'numeric', 'min:0', 'regex:/^\d+(\.\d{1,2})?$/'],
+            'distribution' => ['required', 'string', 'in:free,paid']
         ];
     }
 
     public function messages(): array
     {
         return [
+            'game_id.required' => 'Game ID is required',
+            'game_id.exists' => 'Invalid game selected',
             'name.required' => 'App name is required',
             'name.max' => 'App name cannot exceed 255 characters',
             'description.required' => 'Description is required',

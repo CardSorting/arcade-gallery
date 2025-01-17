@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Game;
-use App\Jobs\ProcessGameSubmission;
+use App\Models\StoreListing;
 use App\Http\Requests\StoreListingRequest;
 use App\Services\StoreListingService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class StoreListingController extends Controller
 {
@@ -17,12 +14,11 @@ class StoreListingController extends Controller
 
     public function index()
     {
-        $games = Game::whereNotNull('store_description')
-            ->with('user')
+        $listings = StoreListing::with(['game', 'game.user'])
             ->latest()
             ->paginate(12);
 
-        return view('store-listings.index', compact('games'));
+        return view('store-listings.index', compact('listings'));
     }
 
     public function create()
@@ -30,29 +26,33 @@ class StoreListingController extends Controller
         return view('store-listings.create');
     }
 
-    public function show(Game $game)
+    public function store(StoreListingRequest $request)
     {
-        $this->authorize('view', $game);
+        $data = $request->validated();
         
-        $game->load('user');
+        $result = $this->storeListingService->createListing($data);
         
-        if (!$game->store_description) {
-            return redirect()->route('games.show', $game)
-                ->with('status', [
-                    'type' => 'info',
-                    'message' => 'This game does not have a store listing yet.'
-                ]);
-        }
-
-        return view('store-listings.show', compact('game'));
+        return response()->json([
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'data' => $result['storeListing'] ?? null
+        ], $result['success'] ? 201 : 500);
     }
 
-    public function store(StoreListingRequest $request, Game $game)
+    public function edit(StoreListing $storeListing)
     {
-        $this->authorize('update', $game);
+        $this->authorize('update', $storeListing);
+        
+        return view('store-listings.edit', compact('storeListing'));
+    }
+
+    public function update(StoreListingRequest $request, StoreListing $storeListing)
+    {
+        $this->authorize('update', $storeListing);
         
         $validated = $request->validated();
-        $result = $this->storeListingService->createListing($game, [
+        
+        $result = $this->storeListingService->updateListing($storeListing, [
             'name' => $validated['name'],
             'description' => $validated['description'],
             'icon' => $validated['icon'],
@@ -71,10 +71,31 @@ class StoreListingController extends Controller
                 ]);
         }
 
-        return redirect()->route('games.show', $game)
+        return redirect()->route('store-listings.show', $storeListing)
             ->with('status', [
                 'type' => 'success',
-                'message' => 'Store listing updated successfully! Processing will begin shortly.'
+                'message' => 'Store listing updated successfully!'
+            ]);
+    }
+
+    public function publish(StoreListing $storeListing)
+    {
+        $this->authorize('update', $storeListing);
+        
+        $result = $this->storeListingService->publishListing($storeListing);
+        
+        if (!$result['success']) {
+            return redirect()->back()
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $result['message']
+                ]);
+        }
+
+        return redirect()->route('store-listings.show', $storeListing)
+            ->with('status', [
+                'type' => 'success',
+                'message' => 'Store listing published successfully!'
             ]);
     }
 }
