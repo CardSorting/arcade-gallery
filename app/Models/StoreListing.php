@@ -11,6 +11,7 @@ class StoreListing extends Model
 
     protected $fillable = [
         'game_id',
+        'developer',
         'name',
         'description',
         'icon',

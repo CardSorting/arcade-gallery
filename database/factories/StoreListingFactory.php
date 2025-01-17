@@ -13,6 +13,7 @@ class StoreListingFactory extends Factory
     {
         return [
             'game_id' => \App\Models\Game::factory(),
+            'developer' => $this->faker->company(),
             'name' => $this->faker->sentence(3),
             'description' => $this->faker->paragraphs(3, true),
             'icon' => 'https://picsum.photos/200',
