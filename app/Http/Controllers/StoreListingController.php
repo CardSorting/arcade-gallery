@@ -25,6 +25,11 @@ class StoreListingController extends Controller
         return view('store-listings.index', compact('games'));
     }
 
+    public function create()
+    {
+        return view('store-listings.create');
+    }
+
     public function show(Game $game)
     {
         $this->authorize('view', $game);
@@ -46,7 +51,16 @@ class StoreListingController extends Controller
     {
         $this->authorize('update', $game);
         
-        $result = $this->storeListingService->createListing($game, $request->validated());
+        $validated = $request->validated();
+        $result = $this->storeListingService->createListing($game, [
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'icon' => $validated['icon'],
+            'screenshots' => $validated['screenshots'] ?? [],
+            'category' => $validated['category'],
+            'price' => $validated['price'],
+            'distribution' => $validated['distribution']
+        ]);
         
         if (!$result['success']) {
             return redirect()->back()

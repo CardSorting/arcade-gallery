@@ -22,7 +22,15 @@ class StoreListingService
             $data = $this->handleFileUploads($data);
             
             // Update game with store listing data
-            $game->update($data);
+            $game->update([
+                'store_title' => $data['name'],
+                'store_description' => $data['description'],
+                'store_category' => $data['category'],
+                'store_price' => $data['price'],
+                'store_distribution' => $data['distribution'],
+                'store_icon' => $data['store_icon'] ?? null,
+                'store_screenshots' => $data['store_screenshots'] ?? null
+            ]);
             
             // Update game status and dispatch processing job
             $game->update(['status' => 'pending']);
@@ -49,12 +57,12 @@ class StoreListingService
 
     protected function handleFileUploads(array $data): array
     {
-        if (isset($data['store_icon'])) {
-            $data['store_icon'] = $this->fileStorageService->storeIcon($data['store_icon']);
+        if (isset($data['icon'])) {
+            $data['store_icon'] = $this->fileStorageService->storeIcon($data['icon']);
         }
 
-        if (isset($data['store_screenshots'])) {
-            $data['store_screenshots'] = $this->fileStorageService->storeScreenshots($data['store_screenshots']);
+        if (isset($data['screenshots'])) {
+            $data['store_screenshots'] = $this->fileStorageService->storeScreenshots($data['screenshots']);
         }
 
         return $data;

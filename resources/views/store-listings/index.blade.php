@@ -13,11 +13,11 @@
                             <a href="{{ route('store-listings.show', $game) }}" class="block">
                                 @if($game->store_icon)
                                     <img src="{{ Storage::url($game->store_icon) }}" 
-                                         alt="{{ $game->title }} icon" 
+                                         alt="{{ $game->store_title }} icon" 
                                          class="w-full h-48 object-cover">
                                 @endif
                                 <div class="p-4">
-                                    <h2 class="text-xl font-semibold mb-2">{{ $game->title }}</h2>
+                                    <h2 class="text-xl font-semibold mb-2">{{ $game->store_title }}</h2>
                                     <p class="text-gray-600">{{ Str::limit($game->store_description, 100) }}</p>
                                 </div>
                             </a>

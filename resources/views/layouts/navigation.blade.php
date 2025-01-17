@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('git-repositories.index')" :active="request()->routeIs('git-repositories.*')">
                         {{ __('Manage Repositories') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('store-listings.index')" :active="request()->routeIs('store-listings.*')">
+                        {{ __('Store Listings') }}
+                    </x-nav-link>
                 </div>
             </div>
 

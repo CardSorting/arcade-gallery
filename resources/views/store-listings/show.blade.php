@@ -8,12 +8,12 @@
                 <div class="flex flex-col md:flex-row gap-8">
                     <!-- Main Content -->
                     <div class="flex-1">
-                        <h1 class="text-3xl font-bold mb-4">{{ $game->title }}</h1>
+                        <h1 class="text-3xl font-bold mb-4">{{ $game->store_title }}</h1>
                         
                         @if($game->store_icon)
                         <div class="mb-6">
                             <img src="{{ Storage::url($game->store_icon) }}" 
-                                 alt="{{ $game->title }} icon" 
+                                 alt="{{ $game->store_title }} icon" 
                                  class="w-32 h-32 rounded-lg">
                         </div>
                         @endif
@@ -54,6 +54,21 @@
                                 <div>
                                     <p class="text-sm text-gray-500">Developer</p>
                                     <p>{{ $game->user->name }}</p>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-sm text-gray-500">Category</p>
+                                    <p>{{ ucfirst($game->store_category) }}</p>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-sm text-gray-500">Price</p>
+                                    <p>{{ $game->store_price > 0 ? '$'.number_format($game->store_price, 2) : 'Free' }}</p>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-sm text-gray-500">Distribution</p>
+                                    <p>{{ ucfirst($game->store_distribution) }}</p>
                                 </div>
                             </div>
 
