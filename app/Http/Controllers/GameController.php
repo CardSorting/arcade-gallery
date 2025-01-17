@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GitRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Jobs\ProcessGameSubmission;
-
 class GameController extends Controller
 {
     public function __construct()
@@ -34,26 +35,19 @@ class GameController extends Controller
     {
         $this->authorize('create', Game::class);
         
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'git_repository_id' => 'required|exists:git_repositories,id',
-            'url' => 'nullable|url',
-        ]);
-
         $game = new Game();
         $game->title = $request->title;
         $game->description = $request->description;
         $game->user_id = auth()->id();
         $game->git_repository_id = $request->git_repository_id;
-        $game->status = 'pending';
+        $game->status = 'initializing';
         $game->save();
 
-        // Dispatch job to handle submission processing
-        ProcessGameSubmission::dispatch($game);
-
-        return redirect()->route('games.index')
-            ->with('status', 'Game submission is being processed');
+        return redirect()->route('games.show', $game)
+            ->with('status', [
+                'type' => 'success',
+                'message' => 'Game created successfully!'
+            ]);
     }
 
     public function show(Game $game)
