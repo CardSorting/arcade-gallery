@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('url')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('git_repository_id')->constrained()->onDelete('cascade');
+            $table->foreignId('git_repository_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

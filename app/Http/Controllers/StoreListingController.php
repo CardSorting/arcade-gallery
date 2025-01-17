@@ -151,9 +151,13 @@ public function store(StoreListingRequest $request)
 
     public function explore()
     {
-        $listings = StoreListing::with(['game', 'game.user'])
-            ->where('status', 'published')
-            ->latest()
+        $listings = StoreListing::with(['game' => function($query) {
+                $query->with('user');
+            }])
+            ->select('store_listings.*', 'games.version')
+            ->join('games', 'games.id', '=', 'store_listings.game_id')
+            ->whereNotNull('published_at')
+            ->latest('published_at')
             ->paginate(12);
 
         return view('store-listings.explore', compact('listings'));
