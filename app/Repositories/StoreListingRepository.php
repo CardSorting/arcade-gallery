@@ -61,6 +61,17 @@ class StoreListingRepository implements StoreListingRepositoryInterface
         return StoreListing::find($id);
     }
 
+    public function get(int $id): StoreListing
+    {
+        $listing = StoreListing::with('game')->find($id);
+        
+        if (!$listing) {
+            throw new \Exception("Store listing not found");
+        }
+        
+        return $listing;
+    }
+
     public function delete(StoreListing $storeListing): bool
     {
         try {
@@ -82,6 +93,19 @@ class StoreListingRepository implements StoreListingRepositoryInterface
     public function getWithDetails($id): ?StoreListing
     {
         return StoreListing::with('game')
+            ->select([
+                'id',
+                'title',
+                'description',
+                'version',
+                'size',
+                'age_rating',
+                'screenshots',
+                'system_requirements',
+                'developer_info',
+                'platforms',
+                'game_id'
+            ])
             ->where('id', $id)
             ->first();
     }

@@ -16,15 +16,24 @@ class StoreListing extends Model
         'description',
         'icon',
         'screenshots',
+        'features',
+        'reviews',
         'category',
         'price',
         'distribution',
         'is_featured',
-        'published_at'
+        'published_at',
+        'size',
+        'version',
+        'age_rating',
+        'system_requirements',
+        'platforms'
     ];
 
     protected $casts = [
         'screenshots' => 'array',
+        'features' => 'array',
+        'reviews' => 'array',
         'published_at' => 'datetime',
         'is_featured' => 'boolean'
     ];

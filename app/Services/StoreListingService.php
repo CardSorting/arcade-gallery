@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Repositories\StoreListingRepositoryInterface;
 use App\Jobs\ProcessGameSubmission;
 use Illuminate\Support\Facades\Log;
+use App\Services\StoreListing\Exceptions\StoreListingException;
+use App\Services\StoreListing\Support\StoreListingSupport;
+use App\Services\StoreListing\DTOs\StoreListingDTO;
 
 class StoreListingService
 {
@@ -117,6 +120,55 @@ class StoreListingService
         }
 
         return $data;
+    }
+
+    public function getListing(string $id): StoreListingDTO
+    {
+        try {
+            $listing = $this->storeListingRepository->get($id);
+            $gameData = $listing->game ? [
+                'id' => $listing->game->id,
+                'name' => $listing->game->name,
+                'category' => $listing->game->category,
+                'description' => $listing->game->description
+            ] : null;
+
+            $dtoData = StoreListingSupport::prepareDTOData([
+                'title' => $listing->name,
+                'description' => $listing->description,
+                'version' => $listing->version,
+                'size' => $listing->size,
+                'age_rating' => $listing->age_rating,
+                'screenshots' => $listing->screenshots,
+                'system_requirements' => $listing->system_requirements,
+                'developer_info' => [
+                    'name' => $listing->developer,
+                    'contact' => $listing->developer_contact
+                ],
+                'features' => $listing->features ?? [],
+                'game' => $gameData
+            ]);
+            
+            // Convert platforms string to array
+            $platforms = $listing->platforms ? explode(',', $listing->platforms) : [];
+            
+            return new StoreListingDTO(
+                $dtoData['title'],
+                $dtoData['description'],
+                $dtoData['version'],
+                $dtoData['size'],
+                $dtoData['age_rating'],
+                $dtoData['screenshots'],
+                $dtoData['systemRequirements'],
+                $dtoData['developerInfo'],
+                $platforms,
+                $dtoData['features'],
+                $dtoData['game'],
+                $listing->id
+            );
+        } catch (\Exception $e) {
+            throw new StoreListingException('Failed to get store listing: ' . $e->getMessage());
+        }
     }
 
     public function getListingWithDetails($id)

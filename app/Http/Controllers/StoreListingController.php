@@ -16,8 +16,18 @@ class StoreListingController extends Controller
 
     public function index()
     {
-        $listings = $this->storeListingService->getPaginatedListings(12);
-        return view('store-listings.index', compact('listings'));
+        try {
+            $listings = $this->storeListingService->getPaginatedListings(12);
+            return view('store-listings.index', [
+                'listings' => $listings
+            ]);
+        } catch (StoreListingException $e) {
+            return redirect()->route('store-listings.index')
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+        }
     }
 
     public function show($id)
@@ -26,23 +36,51 @@ class StoreListingController extends Controller
             return $this->explore();
         }
 
-        $storeListing = $this->storeListingService->getListingWithDetails($id);
-        return view('store-listings.show', compact('storeListing'));
+        try {
+            $storeListing = $this->storeListingService->getListing($id);
+            return view('store-listings.show', [
+                'storeListing' => $storeListing
+            ]);
+        } catch (StoreListingException $e) {
+            return redirect()->route('store-listings.index')
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+        }
     }
 
     public function share($id)
     {
-        $storeListing = $this->storeListingService->getListingWithDetails($id);
-        
-        return response()->json([
-            'url' => route('store-listings.show', $storeListing)
-        ]);
+        try {
+            $storeListing = $this->storeListingService->getListingWithDetails($id);
+            
+            return response()->json([
+                'success' => true,
+                'url' => route('store-listings.show', $storeListing->id)
+            ]);
+        } catch (StoreListingException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 404);
+        }
     }
 
     public function create()
     {
-        $games = $this->storeListingService->getAvailableGames();
-        return view('store-listings.create', compact('games'));
+        try {
+            $games = $this->storeListingService->getAvailableGames();
+            return view('store-listings.create', [
+                'games' => $games
+            ]);
+        } catch (StoreListingException $e) {
+            return redirect()->route('store-listings.index')
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+        }
     }
 
 public function store(StoreListingRequest $request)
@@ -50,115 +88,152 @@ public function store(StoreListingRequest $request)
     try {
         $data = $request->validated();
         
-        // Map form fields to expected names
-        $listingData = [
-            'game_id' => $data['game_id'],
-            'version' => $data['version'],
-            'release_date' => $data['release_date'],
-            'name' => $data['name'],
+        $dtoData = [
+            'title' => $data['name'],
             'description' => $data['description'],
-            'icon' => $data['icon'],
+            'version' => $data['version'],
             'screenshots' => $data['screenshots'] ?? [],
-            'category' => $data['category'],
-            'price' => $data['price'],
-            'distribution' => $data['distribution']
+            'systemRequirements' => [
+                'os' => $data['os_requirements'] ?? 'Unknown',
+                'processor' => $data['processor_requirements'] ?? 'Unknown',
+                'memory' => $data['memory_requirements'] ?? 'Unknown',
+                'graphics' => $data['graphics_requirements'] ?? 'Unknown',
+                'storage' => $data['storage_requirements'] ?? 'Unknown'
+            ],
+            'developerInfo' => [
+                'name' => auth()->user()->name,
+                'email' => auth()->user()->email
+            ]
         ];
 
-        $result = $this->storeListingService->createListing($listingData);
-    } catch (\Exception $e) {
+        $storeListing = $this->storeListingService->createListing(
+            new StoreListingDTO(...$dtoData)
+        );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $storeListing->toArray()
+            ], 201);
+        }
+
+        return redirect()->route('store-listings.show', $storeListing->id)
+            ->with('status', [
+                'type' => 'success',
+                'message' => 'Store listing created successfully!'
+            ]);
+
+    } catch (StoreListingException $e) {
         return redirect()->back()
             ->withInput()
             ->with('status', [
                 'type' => 'error',
-                'message' => 'An error occurred while creating the listing: ' . $e->getMessage()
+                'message' => $e->getMessage()
             ]);
     }
-
-    if ($request->wantsJson()) {
-        return response()->json([
-            'success' => $result['success'],
-            'message' => $result['message'],
-            'data' => $result['storeListing'] ?? null
-        ], $result['success'] ? 201 : 500);
-    }
-
-    if (!$result['success']) {
-        return redirect()->back()
-            ->withInput()
-            ->with('status', [
-                'type' => 'error',
-                'message' => $result['message']
-            ]);
-    }
-
-    return redirect()->route('store-listings.show', $result['storeListing'])
-        ->with('status', [
-            'type' => 'success',
-            'message' => 'Store listing created successfully!'
-        ]);
-    }
+}
 
     public function edit($id)
     {
-        $storeListing = $this->storeListingService->getListingWithDetails($id);
-        return view('store-listings.edit', compact('storeListing'));
+        try {
+            $storeListing = $this->storeListingService->getListingWithDetails($id);
+            return view('store-listings.edit', [
+                'storeListing' => $storeListing->toArray()
+            ]);
+        } catch (StoreListingException $e) {
+            return redirect()->route('store-listings.index')
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+        }
     }
 
     public function update(StoreListingRequest $request, $id)
     {
-        $storeListing = $this->storeListingService->getListingWithDetails($id);
-        $validated = $request->validated();
+        try {
+            $data = $request->validated();
+            
+            $dtoData = [
+                'title' => $data['name'],
+                'description' => $data['description'],
+                'version' => $data['version'],
+                'screenshots' => $data['screenshots'] ?? [],
+                'systemRequirements' => [
+                    'os' => $data['os_requirements'] ?? 'Unknown',
+                    'processor' => $data['processor_requirements'] ?? 'Unknown',
+                    'memory' => $data['memory_requirements'] ?? 'Unknown',
+                    'graphics' => $data['graphics_requirements'] ?? 'Unknown',
+                    'storage' => $data['storage_requirements'] ?? 'Unknown'
+                ],
+                'developerInfo' => [
+                    'name' => auth()->user()->name,
+                    'email' => auth()->user()->email
+                ]
+            ];
 
-        $result = $this->storeListingService->updateListing($id, [
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'icon' => $validated['icon'],
-            'screenshots' => $validated['screenshots'] ?? [],
-            'category' => $validated['category'],
-            'price' => $validated['price'],
-            'distribution' => $validated['distribution']
-        ]);
+            $storeListing = $this->storeListingService->updateListing(
+                $id,
+                new StoreListingDTO(...$dtoData)
+            );
 
-        if (!$result['success']) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $storeListing->toArray()
+                ]);
+            }
+
+            return redirect()->route('store-listings.show', $storeListing->id)
+                ->with('status', [
+                    'type' => 'success',
+                    'message' => 'Store listing updated successfully!'
+                ]);
+
+        } catch (StoreListingException $e) {
             return redirect()->back()
                 ->withInput()
                 ->with('status', [
                     'type' => 'error',
-                    'message' => $result['message']
+                    'message' => $e->getMessage()
                 ]);
         }
-
-        return redirect()->route('store-listings.show', $storeListing)
-            ->with('status', [
-                'type' => 'success',
-                'message' => 'Store listing updated successfully!'
-            ]);
     }
 
     public function publish($id)
     {
-        $storeListing = $this->storeListingService->getListingWithDetails($id);
-        $result = $this->storeListingService->publishListing($id);
+        try {
+            $storeListing = $this->storeListingService->publishListing($id);
 
-        if (!$result['success']) {
+            return redirect()->route('store-listings.show', $storeListing->id)
+                ->with('status', [
+                    'type' => 'success',
+                    'message' => 'Store listing published successfully!'
+                ]);
+
+        } catch (StoreListingException $e) {
             return redirect()->back()
                 ->with('status', [
                     'type' => 'error',
-                    'message' => $result['message']
+                    'message' => $e->getMessage()
                 ]);
         }
-
-        return redirect()->route('store-listings.show', $storeListing)
-            ->with('status', [
-                'type' => 'success',
-                'message' => 'Store listing published successfully!'
-            ]);
     }
 
 
     public function explore()
     {
-        $listings = $this->exploreService->getPublishedListings();
-        return view('store-listings.explore', compact('listings'));
+        try {
+            $listings = $this->exploreService->getPublishedListings();
+            return view('store-listings.explore', [
+                'listings' => $listings
+            ]);
+        } catch (StoreListingException $e) {
+            return redirect()->route('store-listings.index')
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+        }
     }
 }
