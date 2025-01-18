@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Arcade Gallery - The ultimate platform for hosting and sharing web-based games. Deploy instantly and reach players worldwide.">
     <meta name="theme-color" content="#4f46e5">
-    <title>Arcade Gallery - Game Hosting Platform</title>
+    <title>Egg Plays - Game Hosting Platform</title>
     <link rel="canonical" href="{{ url('/') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
