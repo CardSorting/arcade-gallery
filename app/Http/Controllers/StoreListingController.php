@@ -83,55 +83,54 @@ class StoreListingController extends Controller
         }
     }
 
-public function store(StoreListingRequest $request)
-{
-    try {
-        $data = $request->validated();
-        
-        $dtoData = [
-            'title' => $data['name'],
-            'description' => $data['description'],
-            'version' => $data['version'],
-            'screenshots' => $data['screenshots'] ?? [],
-            'systemRequirements' => [
-                'os' => $data['os_requirements'] ?? 'Unknown',
-                'processor' => $data['processor_requirements'] ?? 'Unknown',
-                'memory' => $data['memory_requirements'] ?? 'Unknown',
-                'graphics' => $data['graphics_requirements'] ?? 'Unknown',
-                'storage' => $data['storage_requirements'] ?? 'Unknown'
-            ],
-            'developerInfo' => [
-                'name' => auth()->user()->name,
-                'email' => auth()->user()->email
-            ]
-        ];
+    public function store(StoreListingRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            
+            $dtoData = [
+                'title' => $data['name'],
+                'version' => $data['version'],
+                'screenshots' => $data['screenshots'] ?? [],
+                'systemRequirements' => [
+                    'os' => $data['os_requirements'] ?? 'Unknown',
+                    'processor' => $data['processor_requirements'] ?? 'Unknown',
+                    'memory' => $data['memory_requirements'] ?? 'Unknown',
+                    'graphics' => $data['graphics_requirements'] ?? 'Unknown',
+                    'storage' => $data['storage_requirements'] ?? 'Unknown'
+                ],
+                'developerInfo' => [
+                    'name' => auth()->user()->name,
+                    'email' => auth()->user()->email
+                ]
+            ];
 
-        $storeListing = $this->storeListingService->createListing(
-            new StoreListingDTO(...$dtoData)
-        );
+            $storeListing = $this->storeListingService->createListing(
+                new StoreListingDTO(...$dtoData)
+            );
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => $storeListing->toArray()
-            ], 201);
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $storeListing->toArray()
+                ], 201);
+            }
+
+            return redirect()->route('store-listings.show', $storeListing->id)
+                ->with('status', [
+                    'type' => 'success',
+                    'message' => 'Store listing created successfully!'
+                ]);
+
+        } catch (StoreListingException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('status', [
+                    'type' => 'error',
+                    'message' => $e->getMessage()
+                ]);
         }
-
-        return redirect()->route('store-listings.show', $storeListing->id)
-            ->with('status', [
-                'type' => 'success',
-                'message' => 'Store listing created successfully!'
-            ]);
-
-    } catch (StoreListingException $e) {
-        return redirect()->back()
-            ->withInput()
-            ->with('status', [
-                'type' => 'error',
-                'message' => $e->getMessage()
-            ]);
     }
-}
 
     public function edit($id)
     {
@@ -156,7 +155,6 @@ public function store(StoreListingRequest $request)
             
             $dtoData = [
                 'title' => $data['name'],
-                'description' => $data['description'],
                 'version' => $data['version'],
                 'screenshots' => $data['screenshots'] ?? [],
                 'systemRequirements' => [
@@ -219,7 +217,6 @@ public function store(StoreListingRequest $request)
                 ]);
         }
     }
-
 
     public function explore()
     {

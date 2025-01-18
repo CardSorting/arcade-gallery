@@ -13,7 +13,6 @@ class StoreListing extends Model
         'game_id',
         'developer',
         'name',
-        'description',
         'icon',
         'screenshots',
         'features',

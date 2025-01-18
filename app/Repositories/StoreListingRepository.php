@@ -75,6 +75,7 @@ class StoreListingRepository implements StoreListingRepositoryInterface
         // Add calculated values to the model
         $listing->average_rating = $listing->reviews_avg_rating ?? 0;
         $listing->reviews_count = $listing->reviews_count ?? 0;
+        $listing->reviews_avg_rating = $listing->average_rating;
         
         return $listing;
     }

@@ -26,20 +26,22 @@ class StoreListingSupport
         })) === count($screenshots);
     }
 
-    public static function prepareDTOData(array $data): array
-    {
-        return [
-            'title' => $data['title'] ?? '',
-            'description' => $data['description'] ?? '',
-            'version' => $data['version'] ?? '1.0.0',
-            'screenshots' => $data['screenshots'] ?? [],
-            'systemRequirements' => self::formatSystemRequirements($data['system_requirements'] ?? []),
-            'developerInfo' => $data['developer_info'] ?? [],
-            'game' => $data['game'] ?? null,
-            'size' => $data['size'] ?? 0,
-            'age_rating' => $data['age_rating'] ?? 'N/A',
-            'features' => $data['features'] ?? [],
-            'icon_url' => $data['icon_url'] ?? ''
-        ];
-    }
+public static function prepareDTOData(array $data): array
+{
+    return [
+        'title' => $data['title'] ?? '',
+        'description' => $data['description'] ?? '',
+        'version' => $data['version'] ?? '1.0.0',
+        'screenshots' => $data['screenshots'] ?? [],
+        'systemRequirements' => self::formatSystemRequirements($data['system_requirements'] ?? []),
+        'developerInfo' => $data['developer_info'] ?? [],
+        'game' => $data['game'] ?? null,
+        'size' => $data['size'] ?? 0,
+        'age_rating' => $data['age_rating'] ?? 'N/A',
+        'features' => $data['features'] ?? [],
+        'icon_url' => $data['icon_url'] ?? '',
+        'downloads' => $data['downloads'] ?? 0, // Add downloads property
+        'updated_at' => $data['updated_at'] ?? null
+    ];
+}
 }

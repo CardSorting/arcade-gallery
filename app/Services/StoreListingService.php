@@ -133,43 +133,49 @@ class StoreListingService
                 'description' => $listing->game->description
             ] : null;
 
-            $dtoData = StoreListingSupport::prepareDTOData([
-                'title' => $listing->name,
-                'description' => $listing->description,
-                'version' => $listing->version,
-                'size' => $listing->size,
-                'age_rating' => $listing->age_rating,
-                'screenshots' => $listing->screenshots,
-                'system_requirements' => $listing->system_requirements,
-                'developer_info' => [
-                    'name' => $listing->developer,
-                    'contact' => $listing->developer_contact
-                ],
-                'features' => $listing->features ?? [],
-                'game' => $gameData,
-                'icon_url' => $listing->icon,
-                'average_rating' => $listing->average_rating,
-                'reviews_count' => $listing->reviews_count
-            ]);
+$dtoData = StoreListingSupport::prepareDTOData([
+    'title' => $listing->name,
+    'description' => $listing->description,
+    'version' => $listing->version,
+    'size' => $listing->size,
+    'age_rating' => $listing->age_rating,
+    'screenshots' => $listing->screenshots,
+    'system_requirements' => $listing->system_requirements,
+    'developer_info' => [
+        'name' => $listing->developer,
+        'contact' => $listing->developer_contact
+    ],
+    'features' => $listing->features ?? [],
+    'game' => $gameData,
+    'icon_url' => $listing->icon,
+    'average_rating' => $listing->average_rating,
+    'reviews_count' => $listing->reviews_count,
+    'downloads' => $listing->downloads, // Add downloads property
+    'updated_at' => $listing->updated_at
+]);
             
             // Convert platforms string to array
             $platforms = $listing->platforms ? explode(',', $listing->platforms) : [];
             
-            return new StoreListingDTO(
-                $dtoData['title'],
-                $dtoData['description'],
-                $dtoData['version'],
-                $dtoData['size'],
-                $dtoData['age_rating'],
-                $dtoData['screenshots'],
-                $dtoData['systemRequirements'],
-                $dtoData['developerInfo'],
-                $platforms,
-                $dtoData['icon_url'],
-                $dtoData['features'],
-                $dtoData['game'],
-                $listing->id
-            );
+return new StoreListingDTO(
+    $dtoData['title'],
+    $dtoData['description'],
+    $dtoData['version'],
+    $dtoData['size'],
+    $dtoData['age_rating'],
+    $dtoData['screenshots'],
+    $dtoData['systemRequirements'],
+    $dtoData['developerInfo'],
+    $platforms,
+    $dtoData['icon_url'],
+    $dtoData['downloads'], // Add downloads property
+    $dtoData['features'],
+    $dtoData['game'],
+    $listing->id,
+    $dtoData['reviews_avg_rating'] ?? 0,
+    $dtoData['reviews_count'] ?? 0,
+    $dtoData['updated_at'] ?? now()
+);
         } catch (\Exception $e) {
             throw new StoreListingException('Failed to get store listing: ' . $e->getMessage());
         }
