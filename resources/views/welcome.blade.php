@@ -79,7 +79,7 @@
                                     <span class="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">Everywhere.</span>
                                 </h1>
                                 <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-500 leading-relaxed sm:text-2xl">
-                                    Arcade Gallery is the ultimate platform for hosting and sharing your web-based games. 
+                                    Egg Plays is the ultimate platform for hosting and sharing your web-based games. 
                                     Reach players worldwide with our powerful hosting solution.
                                 </p>
                                 <div class="mt-10 flex justify-center gap-6">
@@ -294,7 +294,7 @@
                     <div class="flex items-center justify-center md:justify-start">
                         <a href="/" class="group flex items-center space-x-2">
                             <x-application-logo class="h-8 w-auto fill-current text-indigo-600 transition-all duration-300 transform group-hover:scale-110" />
-                            <span class="text-gray-900 font-medium">Arcade Gallery</span>
+                            <span class="text-gray-900 font-medium">Egg Plays</span>
                         </a>
                     </div>
                     <nav class="flex justify-center space-x-8" aria-label="Footer navigation">
@@ -303,7 +303,7 @@
                         <a href="#" class="text-gray-500 hover:text-gray-900 transition-all duration-200 hover:underline decoration-indigo-500 decoration-2 underline-offset-4">Contact</a>
                     </nav>
                     <div class="flex justify-center md:justify-end items-center text-gray-500">
-                        &copy; {{ date('Y') }} Arcade Gallery. All rights reserved.
+                        &copy; {{ date('Y') }} Egg Plays. All rights reserved.
                     </div>
                 </div>
             </div>
