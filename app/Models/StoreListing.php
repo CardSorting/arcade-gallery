@@ -17,7 +17,6 @@ class StoreListing extends Model
         'icon',
         'screenshots',
         'features',
-        'reviews',
         'category',
         'price',
         'distribution',
@@ -33,7 +32,6 @@ class StoreListing extends Model
     protected $casts = [
         'screenshots' => 'array',
         'features' => 'array',
-        'reviews' => 'array',
         'published_at' => 'datetime',
         'is_featured' => 'boolean'
     ];
@@ -41,5 +39,20 @@ class StoreListing extends Model
     public function game()
     {
         return $this->belongsTo(Game::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->reviews()->count();
     }
 }

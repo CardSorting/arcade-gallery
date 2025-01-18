@@ -63,11 +63,18 @@ class StoreListingRepository implements StoreListingRepositoryInterface
 
     public function get(int $id): StoreListing
     {
-        $listing = StoreListing::with('game')->find($id);
+        $listing = StoreListing::with(['game', 'reviews'])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->find($id);
         
         if (!$listing) {
             throw new \Exception("Store listing not found");
         }
+        
+        // Add calculated values to the model
+        $listing->average_rating = $listing->reviews_avg_rating ?? 0;
+        $listing->reviews_count = $listing->reviews_count ?? 0;
         
         return $listing;
     }

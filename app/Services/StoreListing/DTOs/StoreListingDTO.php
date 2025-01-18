@@ -14,9 +14,12 @@ class StoreListingDTO
         public readonly array $systemRequirements,
         public readonly array $developerInfo,
         public readonly array $platforms,
+        public readonly string $icon_url,
         public readonly array $features = [],
         public readonly ?array $game = null,
-        public readonly ?int $id = null
+        public readonly ?int $id = null,
+        public readonly float $average_rating = 0.0,
+        public readonly int $reviews_count = 0
     ) {}
 
     public function toArray(): array
@@ -32,7 +35,10 @@ class StoreListingDTO
             'game' => $this->game,
             'size' => $this->size,
             'age_rating' => $this->age_rating,
-            'features' => $this->features
+            'features' => $this->features,
+            'icon_url' => $this->icon_url,
+            'average_rating' => $this->average_rating,
+            'reviews_count' => $this->reviews_count
         ];
     }
 }

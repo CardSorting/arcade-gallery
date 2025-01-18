@@ -146,7 +146,10 @@ class StoreListingService
                     'contact' => $listing->developer_contact
                 ],
                 'features' => $listing->features ?? [],
-                'game' => $gameData
+                'game' => $gameData,
+                'icon_url' => $listing->icon,
+                'average_rating' => $listing->average_rating,
+                'reviews_count' => $listing->reviews_count
             ]);
             
             // Convert platforms string to array
@@ -162,6 +165,7 @@ class StoreListingService
                 $dtoData['systemRequirements'],
                 $dtoData['developerInfo'],
                 $platforms,
+                $dtoData['icon_url'],
                 $dtoData['features'],
                 $dtoData['game'],
                 $listing->id

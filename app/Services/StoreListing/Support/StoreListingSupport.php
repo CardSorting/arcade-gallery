@@ -38,7 +38,8 @@ class StoreListingSupport
             'game' => $data['game'] ?? null,
             'size' => $data['size'] ?? 0,
             'age_rating' => $data['age_rating'] ?? 'N/A',
-            'features' => $data['features'] ?? []
+            'features' => $data['features'] ?? [],
+            'icon_url' => $data['icon_url'] ?? ''
         ];
     }
 }
